@@ -1,0 +1,10 @@
+[Unit]
+Description=Daily Yordamchibot backup
+
+[Timer]
+OnCalendar=*-*-* 03:00:00 Asia/Tashkent
+Persistent=true
+Unit=yordamchibot-backup.service
+
+[Install]
+WantedBy=timers.target

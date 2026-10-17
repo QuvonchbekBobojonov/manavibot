@@ -1,0 +1,17 @@
+Username: @manavibot
+
+Title:
+Manavi — Saqla va ulash
+
+Bio:
+Kerakli matn va fayllaringiz bir joyda. Saqlang, toping va @manavibot orqali istalgan chatga ulashing.
+
+Description:
+Kerakli ma’lumot doim qo‘lingizda.
+
+Matn, havola, rasm, video yoki hujjat yuboring va nom berib saqlang.
+Boshqa chatda @manavibot va qidiruv so‘zini yozing — kerakli yozuvni tanlab yuboring.
+
+Shaxsiy kutubxona: saqlash va qidirish faqat bot egasi uchun.
+
+Profile photo: manavibot-logo.png

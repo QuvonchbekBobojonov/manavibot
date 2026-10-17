@@ -1,0 +1,25 @@
+[Unit]
+Description=Yordamchi Telegram bot
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=yordamchibot
+Group=yordamchibot
+WorkingDirectory=/opt/yordamchibot
+EnvironmentFile=/etc/yordamchibot.env
+Environment=PYTHONDONTWRITEBYTECODE=1
+ExecStart=/opt/yordamchibot/.venv/bin/python -m yordamchibot
+Restart=always
+RestartSec=5
+StateDirectory=yordamchibot
+UMask=0077
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=strict
+ProtectHome=true
+ReadWritePaths=/var/lib/yordamchibot
+
+[Install]
+WantedBy=multi-user.target

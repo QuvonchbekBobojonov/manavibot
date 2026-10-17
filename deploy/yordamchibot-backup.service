@@ -1,0 +1,18 @@
+[Unit]
+Description=Yordamchibot SQLite backup
+
+[Service]
+Type=oneshot
+User=yordamchibot
+Group=yordamchibot
+WorkingDirectory=/opt/yordamchibot
+EnvironmentFile=/etc/yordamchibot.env
+Environment=PYTHONDONTWRITEBYTECODE=1
+ExecStart=/opt/yordamchibot/.venv/bin/python -m yordamchibot.backup
+StateDirectory=yordamchibot
+UMask=0077
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=strict
+ProtectHome=true
+ReadWritePaths=/var/lib/yordamchibot
