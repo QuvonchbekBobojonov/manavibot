@@ -25,7 +25,7 @@ class OwnerOnly(BaseMiddleware):
             if isinstance(event, types.InlineQuery):
                 await event.answer([], is_personal=True, cache_time=0)
             elif isinstance(event, types.CallbackQuery):
-                await event.answer('Ruxsat yo‘q.', show_alert=True)
+                await event.answer('🔒 Ruxsat yo‘q.', show_alert=True)
             return
         return await handler(event, data)
 
@@ -49,12 +49,12 @@ def create_router(store, owner_id):
         rows = [[(item['title'], f"view:{item['id']}")] for item in items[:20]]
         nav = []
         if offset:
-            nav.append(('← Oldingi', f'list:{max(0, offset-20)}'))
+            nav.append(('⬅️ Oldingi', f'list:{max(0, offset-20)}'))
         if len(items) > 20:
-            nav.append(('Keyingi →', f'list:{offset+20}'))
+            nav.append(('Keyingi ➡️', f'list:{offset+20}'))
         if nav:
             rows.append(nav)
-        await message.answer('Ma’lumotlarim:' if items else 'Hozircha ma’lumot yo‘q.',
+        await message.answer('📚 Ma’lumotlarim:' if items else '📭 Hozircha ma’lumot yo‘q. Saqlash uchun matn yoki fayl yuboring.',
                              reply_markup=keyboard(rows) if rows else None)
 
     @router.inline_query()
@@ -75,7 +75,7 @@ def create_router(store, owner_id):
                 action, raw_id = (query.data or '').split(':', 1)
                 item_id = int(raw_id)
             except ValueError:
-                await query.answer('Noto‘g‘ri tugma.')
+                await query.answer('⚠️ Noto‘g‘ri tugma.')
                 return
             if action == 'list':
                 await query.answer()
@@ -83,27 +83,27 @@ def create_router(store, owner_id):
                 return
             item = store.get(item_id)
             if not item:
-                await query.answer('Yozuv topilmadi.', show_alert=True)
+                await query.answer('🔎 Yozuv topilmadi.', show_alert=True)
                 return
             await query.answer()
             if action == 'view':
                 await preview(query.message, item, keyboard([
-                    [('Nomini o‘zgartirish', f'rename:{item_id}'), ('Mazmunini almashtirish', f'replace:{item_id}')],
-                    [('O‘chirish', f'delete:{item_id}'), ('Ro‘yxat', 'list:0')]]))
+                    [('✏️ Nomini o‘zgartirish', f'rename:{item_id}'), ('🔄 Mazmunini almashtirish', f'replace:{item_id}')],
+                    [('🗑 O‘chirish', f'delete:{item_id}'), ('📚 Ro‘yxat', 'list:0')]]))
             elif action in ('rename', 'replace'):
                 if pending:
-                    await query.message.answer('Avval saqlashni tugating yoki /cancel yuboring.')
+                    await query.message.answer('⏳ Avval saqlashni tugating yoki /cancel yuboring.')
                     return
                 editing = (action, item_id)
-                await query.message.answer('Yangi nom yuboring.' if action == 'rename' else 'Yangi matn yoki fayl yuboring.')
+                await query.message.answer('✏️ Yangi nom yuboring.' if action == 'rename' else '📎 Yangi matn yoki fayl yuboring.')
             elif action == 'delete':
-                await query.message.answer('Ushbu yozuvni o‘chirasizmi?', reply_markup=keyboard([
-                    [('Ha, o‘chirish', f'confirm:{item_id}'), ('Bekor qilish', f'view:{item_id}')]]))
+                await query.message.answer('🗑 Ushbu yozuvni o‘chirasizmi?', reply_markup=keyboard([
+                    [('🗑 Ha, o‘chirish', f'confirm:{item_id}'), ('↩️ Bekor qilish', f'view:{item_id}')]]))
             elif action == 'confirm':
                 store.delete(item_id)
                 if editing and editing[1] == item_id:
                     editing = None
-                await query.message.answer('O‘chirildi.')
+                await query.message.answer('✅ O‘chirildi.')
 
     @router.message()
     async def message(message: types.Message):
@@ -115,47 +115,51 @@ def create_router(store, owner_id):
             if command == '/cancel':
                 pending.clear()
                 editing = None
-                await message.answer('Amal bekor qilindi.')
+                await message.answer('↩️ Amal bekor qilindi.')
                 return
             if command in ('/start', '/help'):
-                await message.answer('Matn, havola, rasm, video yoki hujjat yuboring, keyin unga nom bering. '
-                    'Boshqa chatda @manavibot qidiruv yozib ulashing. /cancel — amalni bekor qilish. '
-                    'Albom fayllari alohida saqlanadi.', reply_markup=types.ReplyKeyboardMarkup(
-                        keyboard=[[types.KeyboardButton(text='Ma’lumotlarim')]], resize_keyboard=True))
+                await message.answer('👋 Manavi — Saqla va ulash!\n\n'
+                    '📥 Matn, havola, rasm, video yoki hujjat yuboring.\n'
+                    '✏️ Qidirish oson bo‘lishi uchun unga nom bering.\n'
+                    '🔎 Boshqa chatda @manavibot qidiruv yozib ulashing.\n\n'
+                    '📚 Saqlangan yozuvlar — quyidagi menyuda.\n'
+                    '↩️ /cancel — amalni bekor qilish.\n'
+                    '🖼 Albom fayllari alohida saqlanadi.', reply_markup=types.ReplyKeyboardMarkup(
+                        keyboard=[[types.KeyboardButton(text='📚 Ma’lumotlarim')]], resize_keyboard=True))
                 return
-            if command == '/list' or text == 'Ma’lumotlarim':
+            if command == '/list' or text in ('Ma’lumotlarim', '📚 Ma’lumotlarim'):
                 await listing(message)
                 return
             if text.startswith('/'):
-                await message.answer('Noma’lum buyruq. /help — yordam.')
+                await message.answer('💡 Noma’lum buyruq. /help — yordam.')
                 return
             if editing:
                 action, item_id = editing
                 value = text.strip() if action == 'rename' else extract(message)
                 if not value or (action == 'rename' and len(value) > 100):
-                    await message.answer('1–100 belgili nom yuboring.' if action == 'rename' else 'Matn, rasm, video yoki hujjat yuboring.')
+                    await message.answer('✏️ 1–100 belgili nom yuboring.' if action == 'rename' else '📎 Matn, rasm, video yoki hujjat yuboring.')
                     return
                 ok = store.update(item_id, **({'title': value} if action == 'rename' else {'payload': value}))
                 editing = None
-                await message.answer('Yangilandi.' if ok else 'Yozuv topilmadi.')
+                await message.answer('✅ Yangilandi.' if ok else '🔎 Yozuv topilmadi.')
                 return
             if pending and text and not message.forward_origin:
                 if not text.strip() or len(text.strip()) > 100:
-                    await message.answer('Nom 1–100 belgidan iborat bo‘lsin.')
+                    await message.answer('✏️ Nom 1–100 belgidan iborat bo‘lsin.')
                     return
                 store.add(text.strip(), pending[0])
                 pending.popleft()
-                await message.answer('Saqlandi.' + (' Navbatdagi fayl uchun nom yuboring.' if pending else ''))
+                await message.answer('✅ Saqlandi.' + ('\n✏️ Navbatdagi fayl uchun nom yuboring.' if pending else ''))
                 return
             payload = extract(message)
             if not payload:
-                await message.answer('Bu xabar turi qo‘llanmaydi. Matn, rasm, video yoki hujjat yuboring.')
+                await message.answer('⚠️ Bu xabar turi qo‘llanmaydi. Matn, rasm, video yoki hujjat yuboring.')
                 return
             if len(pending) >= 100:
-                await message.answer('Navbat to‘ldi. Avval yozuvlarga nom bering yoki /cancel yuboring.')
+                await message.answer('⏳ Navbat to‘ldi. Avval yozuvlarga nom bering yoki /cancel yuboring.')
                 return
             pending.append(payload)
-            await message.answer(f'Qabul qilindi. Navbatda {len(pending)} ta. Birinchi yozuv uchun nom yuboring.')
+            await message.answer(f'📥 Qabul qilindi. Navbatda: {len(pending)} ta.\n✏️ Birinchi yozuv uchun nom yuboring.')
 
     @router.errors()
     async def error(event: types.ErrorEvent):
@@ -164,7 +168,7 @@ def create_router(store, owner_id):
         message = event.update.message or (event.update.callback_query.message if event.update.callback_query else None)
         if message and message.chat.id == owner_id:
             try:
-                await message.answer('Amal bajarilmadi. Qayta urinib ko‘ring yoki /cancel yuboring.')
+                await message.answer('⚠️ Amal bajarilmadi. Qayta urinib ko‘ring yoki /cancel yuboring.')
             except TelegramAPIError:
                 pass
         return True
@@ -191,7 +195,7 @@ async def main():
     dp.include_router(create_router(store, owner))
     try:
         await bot.set_my_commands([types.BotCommand(command=c, description=d) for c, d in
-            [('start', 'Boshlash'), ('list', 'Ma’lumotlarim'), ('cancel', 'Amalni bekor qilish'), ('help', 'Yordam')]])
+            [('start', '👋 Boshlash'), ('list', '📚 Ma’lumotlarim'), ('cancel', '↩️ Amalni bekor qilish'), ('help', '💡 Yordam')]])
         await dp.start_polling(bot)
     finally:
         store.close()
