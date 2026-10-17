@@ -8,11 +8,36 @@ O‘zbek tilidagi shaxsiy Telegram kutubxonasi. Python 3.12+, aiogram 3, SQLite 
 
 ## Foydalanish
 
-Botga matn, havola, rasm, video yoki hujjat yuboring/forward qiling. Keyingi oddiy matnni nom sifatida yuboring (1–100 belgi). Albom fayllari kelgan tartibida navbatga olinadi: har biriga alohida nom yuboring. Matnni saqlayotganda navbatdagi oddiy matn nom hisoblanadi. `/cancel` barcha tugallanmagan amallarni bekor qiladi.
+Botga matn, havola, rasm, video, hujjat, ovozli xabar, audio yoki GIF yuboring/forward qiling. Keyingi oddiy matnni nom sifatida yuboring (1–100 belgi). Albom fayllari kelgan tartibida navbatga olinadi: har biriga alohida nom yuboring. Matnni saqlayotganda navbatdagi oddiy matn nom hisoblanadi. `/cancel` barcha tugallanmagan amallarni bekor qiladi.
 
-`Ma’lumotlarim` yoki `/list` orqali yozuvni tanlab ko‘rish, nomini o‘zgartirish, mazmun/faylini almashtirish va o‘chirish mumkin. Istalgan chatda `@manavibot qidiruv` yozing va natijani tanlang. Nom yuborilgan mazmunga qo‘shilmaydi. Qidiruv nom, matn va izoh bo‘yicha ishlaydi; bo‘sh so‘rov yangi yozuvlarni ko‘rsatadi. Boshqa akkauntlar kutubxonani ko‘ra olmaydi, siz ulashgan xabarni esa qabul qiluvchi ko‘radi.
+`📚 Ma’lumotlarim` yoki `/list` orqali yozuvni ko‘rish va boshqarish mumkin. Istalgan chatda `@manavibot qidiruv` yozing yoki yozuvdagi `↗️ Ulashish` tugmasi orqali chat tanlab, natijani yuboring. Nom yuborilgan mazmunga qo‘shilmaydi. Boshqa akkauntlar kutubxonani ko‘ra olmaydi, siz ulashgan xabarni esa qabul qiluvchi ko‘radi.
 
 Saqlangan yozuvlar qayta ishga tushganda qoladi. Hali nom berilmagan navbat va tahrirlash holati xotirada: restartdan keyin qayta yuborish kerak. Fayllar Telegramda saqlanadi, diskka yuklanmaydi. O‘chirish ilgari boshqa chatga yuborilgan nusxalarni o‘chirmaydi.
+
+## Yangi imkoniyatlar
+
+| Funksiya | Foydalanish |
+| --- | --- |
+| 🗂 Kategoriya | Yozuvdagi «Kategoriya» tugmasi, 40 belgigacha nom; `/categories` orqali ko‘rish. |
+| 🏷 Teglar | Yozuvdagi «Teglar» tugmasi, vergul bilan ajratilgan 10 tagacha teg (har biri 30 belgi). |
+| ⭐ Sevimlilar | Yozuvdagi yulduz tugmasi; `/favorites`. Mos kelgan sevimlilar qidiruvda ham avval chiqadi. |
+| ↗️ Ulashish | Chat tanlab, aynan shu yozuvni inline orqali yuborish. Maxfiy yozuvda tugma ko‘rinmaydi. |
+| 🎤 Ovoz, 🎵 audio, 🎞 GIF | Oddiy fayl kabi yuboring va nomlang. Inline natijada audio nomi Telegramdagi audio metama’lumotidan olinadi. |
+| 🔎 Aqlli qidiruv | `/search so‘z`, menyu yoki inline orqali nom, matn, izoh, kategoriya va teglardan izlash. Lotin/kirill, apostrof variantlari va 4+ belgili so‘zlarda kichik xatolar qo‘llanadi. |
+| 🗑 Savat | O‘chirishdan keyin `/trash` orqali 30 kun ichida tiklash. So‘ng yozuv avtomatik o‘chadi. Eski SQLite zaxiralarida nusxa qolishi mumkin. |
+| 📦 Eksport | `/export` — maxfiy va savatdagi yozuvlar, formatlash, kategoriya, teglar hamda belgilar JSON faylida. |
+| 📥 Import | `/import`, JSON yuborish, tekshiruvdan keyin tugma bilan tasdiqlash. Mavjud UUID’lar o‘tkazib yuboriladi, eski yozuvlar almashtirilmaydi. |
+| ⏰ Eslatmalar | Yozuvdagi «Eslatma»: `10 daqiqa`, `2 soat`, `1 kun` yoki `25.12.2026 09:00`. `/reminders` ro‘yxati; yozuvdan bekor qilish. |
+| 🔐 Maxfiy yozuvlar | Yozuvdagi «Maxfiy qilish» tugmasi inline qidiruv va bevosita ulashishni yopadi. Egasi shaxsiy chatda ko‘ra oladi. |
+| 📊 Statistika | `/stats`: faol yozuvlar, sevimlilar, maxfiylar, savat, eslatmalar va fayl turlari. |
+
+Kategoriya yoki tegni tozalash uchun `-` yuboring. Yangi menyu uchun `/start` yuboring. Eski «Ma’lumotlarim» tugmasi ham ishlaydi.
+
+Eslatma vaqti Toshkent (UTC+5), tekshirish oralig‘i 15 soniya. Har yozuvda bitta eslatma; qayta belgilash avvalgisini almashtiradi. Eslatma bazada saqlanadi; bot o‘chiq paytda muddati o‘tgan bo‘lsa, ishga tushgach yuboriladi. Telegramga ulanish xatosida qayta uriniladi. Eslatma faqat egasiga yozuvni ochish tugmasi bilan yuboriladi. Savatga ko‘chirish eslatmani bekor qiladi; tiklash uni qayta yoqmaydi. Yuborish va bazaga belgilash orasida jarayon to‘xtasa, eslatma takror kelishi mumkin.
+
+Import/eksport chegarasi: 10 MB va 10 000 yozuv. JSON fayl Telegram fayllarining o‘zini emas, `file_id`larini saqlaydi va faqat shu botga import qilinadi. Eslatmalar JSON bilan ko‘chirilmaydi, ammo to‘liq SQLite zaxirasida saqlanadi. Tugallanmagan import tasdig‘i restart yoki `/cancel`dan keyin bekor bo‘ladi. Maxfiy qilish ilgari ulashilgan nusxalarni qaytarib olmaydi.
+
+Baza migratsiyasi avtomatik va qo‘shimcha ustunlar orqali bajariladi: mavjud ID, matn, fayl va formatlash o‘zgarmaydi. Katta yangilanishdan oldin SQLite zaxirasini oling.
 
 ## Telegram sozlamalari
 
