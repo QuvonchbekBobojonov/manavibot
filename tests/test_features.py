@@ -96,7 +96,7 @@ class FeatureTests(unittest.IsolatedAsyncioTestCase):
         db.execute('INSERT INTO items(title,payload,search_text) VALUES(?,?,?)', ('Old', json.dumps(payload), 'old'))
         db.commit()
         db.close()
-        migrated = Store(path)
+        migrated = Store(path, owner_id=42)
         try:
             first = migrated.get(1)
             self.assertEqual(first['payload'], payload)
@@ -105,7 +105,7 @@ class FeatureTests(unittest.IsolatedAsyncioTestCase):
             self.assertEqual(migrated.search("o'zbekiston")[0]['id'], 1)
         finally:
             migrated.close()
-        reopened = Store(path)
+        reopened = Store(path, owner_id=42)
         self.assertEqual(reopened.get(1)['uid'], first['uid'])
         reopened.close()
 
@@ -117,7 +117,7 @@ class FeatureTests(unittest.IsolatedAsyncioTestCase):
         raw = export_data(self.store, self.bot.id)
         entries = validate_import(raw, self.bot.id)
         self.assertEqual(self.store.import_items(entries), 0)
-        imported = Store(self.path.parent / 'imported.db')
+        imported = Store(self.path.parent / 'imported.db', owner_id=42)
         try:
             self.assertEqual(imported.import_items(entries), 2)
             self.assertTrue(imported.get(i)['private'])
@@ -182,7 +182,7 @@ class FeatureTests(unittest.IsolatedAsyncioTestCase):
         self.store.db.execute('INSERT INTO reminders(item_id,due_at,next_attempt) VALUES(?,?,?)', (i, due, due))
         self.store.db.commit()
         self.store.close()
-        self.store = Store(self.path)
+        self.store = Store(self.path, owner_id=42)
         reopened = self.store
         bot = AsyncMock()
         bot.send_message.side_effect = TelegramNetworkError(method=SendMessage(chat_id=42, text='x'), message='offline')

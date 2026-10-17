@@ -1,7 +1,9 @@
 import asyncio
 import io
+import logging
 import re
 import secrets
+import time
 from collections import deque
 
 from aiogram import BaseMiddleware, Router, types
@@ -10,6 +12,23 @@ from aiogram.exceptions import TelegramAPIError
 from .content import ICONS, LABELS, extract, inline_result, preview
 from .reminders import format_time, parse_time
 from .transfer import MAX_BYTES, export_data, validate_import
+
+inline_log = logging.getLogger('manavibot.inline')
+inline_log.setLevel(logging.INFO)
+
+
+def api_error_code(error):
+    message = str(getattr(error, 'message', '')).casefold()
+    for marker, code in [
+        ('query is too old', 'expired_query'), ('query_id_invalid', 'expired_query'),
+        ('document_invalid', 'invalid_document'), ('wrong file identifier', 'invalid_file'),
+        ('file_id', 'invalid_file'), ('can\'t parse entities', 'invalid_entities'),
+        ('entity', 'invalid_entities'), ('result_id', 'invalid_result_id'),
+        ('media_empty', 'empty_media'), ('timeout', 'timeout'),
+    ]:
+        if marker in message:
+            return code
+    return type(error).__name__
 
 MENU = [
     ['📚 Ma’lumotlarim', '⭐ Sevimlilar'],
@@ -94,7 +113,7 @@ class LimitedBuffer(io.BytesIO):
         return super().write(data)
 
 
-def create_router(store, owner_id):
+def create_library_router(store, owner_id):
     router = Router()
     for observer in (router.message, router.callback_query, router.inline_query):
         observer.outer_middleware(OwnerOnly(owner_id))
@@ -162,6 +181,7 @@ def create_router(store, owner_id):
 
     @router.inline_query()
     async def inline(query: types.InlineQuery):
+        started = time.perf_counter()
         try:
             offset = min(1000000, max(0, int(query.offset or '0')))
         except ValueError:
@@ -172,8 +192,19 @@ def create_router(store, owner_id):
             items = [item] if item and not item['private'] and not offset else []
         else:
             items = store.search(query.query, offset, inline=True)
-        await query.answer([inline_result(item) for item in items[:20]], cache_time=0,
-                           is_personal=True, next_offset=str(offset + 20) if len(items) > 20 else '')
+        results = [inline_result(item) for item in items[:20]]
+        searched = time.perf_counter()
+        try:
+            await query.answer(results, cache_time=0, is_personal=True,
+                               next_offset=str(offset + 20) if len(items) > 20 else '')
+        except TelegramAPIError as exc:
+            inline_log.warning('Inline rejected code=%s results=%s search_ms=%.1f api_ms=%.1f',
+                               api_error_code(exc), len(results), (searched-started)*1000,
+                               (time.perf_counter()-searched)*1000)
+            raise
+        else:
+            inline_log.info('Inline answered results=%s search_ms=%.1f api_ms=%.1f',
+                            len(results), (searched-started)*1000, (time.perf_counter()-searched)*1000)
 
     @router.callback_query()
     async def callback(query: types.CallbackQuery):

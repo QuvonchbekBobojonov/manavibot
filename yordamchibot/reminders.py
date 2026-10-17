@@ -34,28 +34,33 @@ def parse_time(text, now=None):
 
 
 async def deliver_due(bot, store, owner_id):
+    from .payments import PaymentStore
+    payments = PaymentStore(store.db)
     store.purge()
     now = time.time()
-    due = [r for r in store.reminders() if r['next_attempt'] <= now][:20]
+    due = [r for r in store.reminders(all_users=True) if r['next_attempt'] <= now
+           and (r['owner_id'] == owner_id or payments.paid(r['owner_id']))][:20]
     for reminder in due:
         item_id, due_at = reminder['item_id'], reminder['due_at']
+        recipient = reminder['owner_id']
+        scoped = store.for_user(recipient)
         # Earlier sends yielded control; a later reminder may have been cancelled or changed.
-        current = next((r for r in store.reminders() if r['item_id'] == item_id), None)
+        current = next((r for r in scoped.reminders() if r['item_id'] == item_id), None)
         if not current or current['due_at'] != due_at or current['next_attempt'] > time.time():
             continue
         reminder = current
         markup = types.InlineKeyboardMarkup(inline_keyboard=[[
             types.InlineKeyboardButton(text='📖 Yozuvni ochish', callback_data=f'view:{item_id}')]])
         try:
-            await bot.send_message(owner_id, f"⏰ Eslatma: {reminder['title']}\n🕒 {format_time(due_at)}",
+            await bot.send_message(recipient, f"⏰ Eslatma: {reminder['title']}\n🕒 {format_time(due_at)}",
                                    reply_markup=markup)
         except TelegramRetryAfter as exc:
-            store.finish_reminder(item_id, due_at, max(60, int(exc.retry_after)))
+            scoped.finish_reminder(item_id, due_at, max(60, int(exc.retry_after)))
         except TelegramAPIError as exc:
             logging.warning('Reminder delivery failed: %s', type(exc).__name__)
-            store.finish_reminder(item_id, due_at, min(3600, 60 * 2 ** min(reminder['attempts'], 6)))
+            scoped.finish_reminder(item_id, due_at, min(3600, 60 * 2 ** min(reminder['attempts'], 6)))
         else:
-            store.finish_reminder(item_id, due_at)
+            scoped.finish_reminder(item_id, due_at)
 
 
 async def reminder_loop(bot, store, owner_id):

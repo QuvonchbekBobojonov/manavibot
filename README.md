@@ -6,6 +6,23 @@
 
 O‘zbek tilidagi shaxsiy Telegram kutubxonasi. Python 3.12+, aiogram 3, SQLite va Linux systemd bilan ishlaydi.
 
+## Kirish va Telegram Stars
+
+Bot barcha foydalanuvchilar uchun ochiq. `OWNER_ID` egasi bepul foydalanadi; qolganlar shartlarga rozilik bildirib, **bir marta 20 Telegram Stars** to‘lagach barcha funksiyalardan foydalanadi. Avtomatik obuna yoki takroriy yechish yo‘q. `/buy` to‘lov oynasini, `/terms` shartlarni ochadi. To‘lamagan odam inline rejimida botga o‘tish va kirish sotib olish tugmasini ko‘radi.
+
+Har bir akkauntning yozuvlari, qidiruvi, import/eksporti, savati, eslatmalari va tugallanmagan amallari alohida. Oldingi yozuvlar migratsiyada mavjud `OWNER_ID`ga biriktiriladi. Boshqa foydalanuvchi hatto yozuv ID’sini bilsa ham uni ocholmaydi. `OWNER_ID`ni boshqa odamga almashtirish mavjud yozuvlarni ko‘chirmaydi.
+
+To‘lov `XTR`, miqdor `20` va xaridor identifikatori bilan tekshiriladi. Pre-checkout tasdig‘i kirishni ochmaydi: faqat Telegramning `successful_payment` xabari ochadi. Charge ID bazada saqlanadi; takroriy update yangi xarid hisoblanmaydi. Takror yoki noto‘g‘ri hisob bo‘yicha olingan Stars qaytarish navbatiga tushadi. Qaytarish xatosida 5 daqiqadan keyin qayta uriniladi. To‘lov qaytarilsa shu xarid bo‘yicha kirish yopiladi; ma’lumotlar o‘chirilmaydi.
+
+Mijozlar `/paysupport murojaat matni` bilan ticket ochadi. Bot egasi:
+
+- `/payments` — oxirgi 20 ta to‘lov va ularning ichki ID’si.
+- `/tickets` — ochiq murojaatlar.
+- `/reply TICKET_ID javob` — mijozga javob yuborish va murojaatni yopish.
+- `/refund PAYMENT_ID` — qaytarishni ko‘rib chiqish, keyin tugma bilan tasdiqlash.
+
+To‘lovlar, murojaatlar va kirish huquqlari SQLite zaxirasiga kiradi; foydalanuvchi JSON eksportiga kirmaydi. Telegram Stars uchun qo‘shimcha provayder tokeni kerak emas. To‘lov oqimi mock testlarda tekshiriladi; haqiqiy Stars xaridi alohida jonli tekshiruv hisoblanadi. [Telegram Stars hujjatlari](https://core.telegram.org/bots/payments-stars).
+
 ## Foydalanish
 
 Botga matn, havola, rasm, video, hujjat, ovozli xabar, audio yoki GIF yuboring/forward qiling. Keyingi oddiy matnni nom sifatida yuboring (1–100 belgi). Albom fayllari kelgan tartibida navbatga olinadi: har biriga alohida nom yuboring. Matnni saqlayotganda navbatdagi oddiy matn nom hisoblanadi. `/cancel` barcha tugallanmagan amallarni bekor qiladi.

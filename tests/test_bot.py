@@ -14,7 +14,7 @@ class BotTests(unittest.IsolatedAsyncioTestCase):
     async def asyncSetUp(self):
         self.tmp = tempfile.TemporaryDirectory()
         self.path = Path(self.tmp.name) / 'bot.db'
-        self.store = Store(self.path)
+        self.store = Store(self.path, owner_id=42)
         self.bot = Bot('123456:abcdefghijklmnopqrstuvwxyz123456789')
         self.bot.session.make_request = AsyncMock(return_value=True)
         self.dp = Dispatcher()
@@ -104,12 +104,12 @@ class BotTests(unittest.IsolatedAsyncioTestCase):
     async def test_persistence_backup_retention_restore(self):
         self.store.add('persistent', dict(kind='text', text='kept'))
         self.store.close()
-        self.store = Store(self.path)
+        self.store = Store(self.path, owner_id=42)
         self.assertEqual(self.store.get(1)['title'], 'persistent')
         for _ in range(9):
             target = backup(self.path)
         self.assertEqual(len(list(target.parent.glob('*.db'))), 7)
-        restored = Store(target)
+        restored = Store(target, owner_id=42)
         self.assertEqual(restored.get(1)['payload']['text'], 'kept')
         restored.close()
 

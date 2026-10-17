@@ -4,7 +4,7 @@ Title:
 Manavi — Saqla va ulash
 
 Bio:
-Kerakli matn va fayllaringiz bir joyda. Saqlang, toping va @manavibot orqali istalgan chatga ulashing.
+📚 Matn va fayllarni saqlang, toping va inline ulashing. ⭐ Bir martalik 20 Stars. 🔒 Har kimga shaxsiy kutubxona.
 
 Description:
 Kerakli ma’lumot doim qo‘lingizda.
@@ -12,6 +12,8 @@ Kerakli ma’lumot doim qo‘lingizda.
 Matn, havola, rasm, video yoki hujjat yuboring va nom berib saqlang.
 Boshqa chatda @manavibot va qidiruv so‘zini yozing — kerakli yozuvni tanlab yuboring.
 
-Shaxsiy kutubxona: saqlash va qidirish faqat bot egasi uchun.
+⭐ Barcha funksiyalar uchun bir martalik 20 Telegram Stars. Oylik to‘lov yo‘q.
+🔒 Har bir foydalanuvchiga alohida shaxsiy kutubxona.
+💬 To‘lov bo‘yicha yordam: /paysupport
 
 Profile photo: manavibot-logo.png
